@@ -35,6 +35,11 @@ impl SimpleDir {
         st.push('🍭');
         return st;
     }
+    fn new(de : std::fs::DirEntry) -> SimpleDir {
+        let filename = de.file_name().to_os_string().into_string().unwrap();
+        let metadata = de.metadata().unwrap();
+        return SimpleDir {fname: filename, mdata: metadata};
+    }
 }
 
 struct LshaRunConfig {
@@ -62,12 +67,7 @@ fn do_it(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), io:
     sh.input(&[1u8, 2u8, 3u8]);
 
     let mut data : Vec<_> = try!(fs::read_dir(path))
-        .map( |rde| {
-            let de = rde.unwrap();
-            let filename = de.file_name().to_os_string().into_string().unwrap();
-            let metadata = de.metadata().unwrap();
-            return SimpleDir {fname: filename, mdata: metadata};
-        })
+        .map( |rde| { SimpleDir::new(rde.unwrap()) } )
         .collect::<Vec<_>>();
     data.sort_by(|a, b| a.fname.cmp(&b.fname));
 
@@ -78,7 +78,6 @@ fn do_it(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), io:
         }
         sh.input(s.as_bytes());
     };
-
 
     if cfg.be_recursive {
         for sd in data.iter() {
