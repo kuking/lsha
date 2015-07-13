@@ -2,7 +2,7 @@
 
 Small tool built mostly to learn and practice [Rust language](http://www.rust-lang.org/).
 
-Its purpose is to calculate a sha-256 hash out of folders and optionally file contents. It calculates a checksum based on the file names, size, attributes, timestamps and directories (the last two optional). It might be useful to verify folders have not changed or the copies are similar between boxes.
+Its purpose is to calculate a sha-256 hash out of folders and optionally file contents. It calculates a checksum based on file names, size, attributes, timestamps and directories (the last two optional). It might be useful to verify folders have not changed or the copies are similar between boxes.
 
 ## Usage
 
