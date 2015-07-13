@@ -37,7 +37,27 @@ impl SimpleDir {
     }
 }
 
-fn do_it(sh : &mut Sha256, path :&String, checksum :&bool, recursive :&bool, timestamps :&bool, quiet :&bool) -> Result<(), io::Error> {
+struct LshaRunConfig {
+    path          : String,
+    do_checksum   : bool,
+    be_recursive  : bool,
+    be_quiet      : bool,
+    incl_timestamps : bool
+}
+
+impl LshaRunConfig {
+    fn from_docopt(args : docopt::ArgvMap) -> LshaRunConfig {
+        return LshaRunConfig {
+            path: args.get_str(&"PATH").to_string(),
+            do_checksum: args.get_bool(&"-c"),
+            be_recursive:  args.get_bool(&"-r"),
+            be_quiet:  args.get_bool(&"-q"),
+            incl_timestamps: args.get_bool(&"-t")
+        }
+    }
+}
+
+fn do_it(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), io::Error> {
 
     sh.input(&[1u8, 2u8, 3u8]);
 
@@ -53,21 +73,21 @@ fn do_it(sh : &mut Sha256, path :&String, checksum :&bool, recursive :&bool, tim
 
     for sd in data.iter() {
         let s = sd.dump_as_string(&path);
-        if !*quiet {
+        if !cfg.be_quiet {
           println!("{}", &s);
         }
         sh.input(s.as_bytes());
     };
 
 
-    if *recursive {
+    if cfg.be_recursive {
         for sd in data.iter() {
             if sd.mdata.is_dir() {
                 let mut temp = String::new();
                 temp.push_str(path);
                 temp.push('/');
                 temp.push_str(&sd.fname);
-                do_it(sh, &temp, checksum, recursive, timestamps, quiet).unwrap();
+                do_it(sh, &temp, cfg).unwrap();
             }
         }
     }
@@ -96,15 +116,10 @@ fn main() {
         println!("lsha version 0.1");
         return;
     }
-
-    let path = args.get_str(&"PATH").to_string();
-    let checksum = args.get_bool(&"-c");
-    let recursive = args.get_bool(&"-r");
-    let timestamps = args.get_bool(&"-t");
-    let quiet = args.get_bool(&"-q");
+    let cfg = LshaRunConfig::from_docopt (args);
 
     let mut sh = Sha256::new();
-    match do_it(&mut sh, &path, &checksum, &recursive, &timestamps, &quiet) {
+    match do_it(&mut sh, &cfg.path, &cfg) {
         Ok(_)  => println!("lsha-256 {}", sh.result_str()),
         Err(e) => println!("error {}", e.to_string()),
     }
