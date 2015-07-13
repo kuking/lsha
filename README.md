@@ -1,4 +1,4 @@
-# lsha = ls + sha
+# lsha = ls + sha [<img src="https://travis-ci.org/kuking/lsha.svg?branch=master">](https://travis-ci.org/kuking/lsha)
 
 Small tool built mostly to learn and practice [Rust language](http://www.rust-lang.org/).
 
