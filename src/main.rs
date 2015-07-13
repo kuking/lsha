@@ -36,9 +36,10 @@ impl SimpleDir {
         return st;
     }
     fn new(de : std::fs::DirEntry) -> SimpleDir {
-        let filename = de.file_name().to_os_string().into_string().unwrap();
-        let metadata = de.metadata().unwrap();
-        return SimpleDir {fname: filename, mdata: metadata};
+        SimpleDir {
+            fname: de.file_name().to_os_string().into_string().unwrap(),
+            mdata: de.metadata().unwrap()
+        }
     }
 }
 
