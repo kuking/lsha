@@ -1,5 +1,6 @@
 
 use libc::consts::os::posix88::*;
+use libc::types::os::arch::posix88::mode_t;
 
 use std::fs::DirEntry;
 use std::fs::Metadata;
@@ -22,15 +23,15 @@ impl SimpleDir {
         return &self.fname;
     }
 
-    fn mode_as_string(mode :&u16) -> String {
-        fn rwx(mode :&u16, rm :u16, wm :u16, xm :u16) -> String {
+    fn mode_as_string(mode :&mode_t) -> String {
+        fn rwx(mode :&u16, rm :mode_t, wm :mode_t, xm :mode_t) -> String {
             let mut st = String::new();
             if mode & rm == rm { st.push('r') } else { st.push('-') };
             if mode & wm == wm { st.push('w') } else { st.push('-') };
             if mode & xm == xm { st.push('x') } else { st.push('-') };
             return st;
         }
-        fn dbpcs(mode :&u16) -> char {
+        fn dbpcs(mode :&mode_t) -> char {
             if      mode & S_IFLNK == S_IFLNK { return 's' }
             else if mode & S_IFREG == S_IFREG { return '-' }
             else if mode & S_IFBLK == S_IFBLK { return 'b' }
