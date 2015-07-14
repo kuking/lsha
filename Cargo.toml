@@ -1,4 +1,5 @@
 [dependencies]
+libc = "^0.1.8"
 rust-crypto = "*"
 docopt = "0.6.67"
 
