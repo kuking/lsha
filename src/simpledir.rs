@@ -24,7 +24,7 @@ impl SimpleDir {
     }
 
     fn mode_as_string(mode :&mode_t) -> String {
-        fn rwx(mode :&u16, rm :mode_t, wm :mode_t, xm :mode_t) -> String {
+        fn rwx(mode :&mode_t, rm :mode_t, wm :mode_t, xm :mode_t) -> String {
             let mut st = String::new();
             if mode & rm == rm { st.push('r') } else { st.push('-') };
             if mode & wm == wm { st.push('w') } else { st.push('-') };
