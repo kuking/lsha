@@ -66,6 +66,7 @@ impl SimpleDir {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use libc::consts::os::posix88::*;
 
     #[test]
     fn mode_as_string_tests() {
