@@ -63,20 +63,25 @@ impl SimpleDir {
     }
 }
 
-#[test]
-fn mode_as_string_tests() {
-    assert_eq!("?---------", SimpleDir::mode_as_string(&0));
-    assert_eq!("?rwx------", SimpleDir::mode_as_string(&(S_IRUSR+S_IWUSR+S_IXUSR)));
-    assert_eq!("?---rwx---", SimpleDir::mode_as_string(&(S_IRGRP+S_IWGRP+S_IXGRP)));
-    assert_eq!("?------rwx", SimpleDir::mode_as_string(&(S_IROTH+S_IWOTH+S_IXOTH)));
-    assert_eq!("?r--r--r--", SimpleDir::mode_as_string(&(S_IRUSR+S_IRGRP+S_IROTH)));
-    assert_eq!("?-w--w--w-", SimpleDir::mode_as_string(&(S_IWUSR+S_IWGRP+S_IWOTH)));
-    assert_eq!("?--x--x--x", SimpleDir::mode_as_string(&(S_IXUSR+S_IXGRP+S_IXOTH)));
-    assert_eq!("d---------", SimpleDir::mode_as_string(&S_IFDIR));
-    assert_eq!("b---------", SimpleDir::mode_as_string(&S_IFBLK));
-    assert_eq!("p---------", SimpleDir::mode_as_string(&S_IFIFO));
-    assert_eq!("c---------", SimpleDir::mode_as_string(&S_IFCHR));
-    assert_eq!("s---------", SimpleDir::mode_as_string(&S_IFLNK));
-    assert_eq!("drwxrwxrwx", SimpleDir::mode_as_string(
-      &(S_IFDIR+S_IRUSR+S_IWUSR+S_IXUSR+S_IRGRP+S_IWGRP+S_IXGRP+S_IROTH+S_IWOTH+S_IXOTH)));
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn mode_as_string_tests() {
+        assert_eq!("?---------", SimpleDir::mode_as_string(&0));
+        assert_eq!("?rwx------", SimpleDir::mode_as_string(&(S_IRUSR+S_IWUSR+S_IXUSR)));
+        assert_eq!("?---rwx---", SimpleDir::mode_as_string(&(S_IRGRP+S_IWGRP+S_IXGRP)));
+        assert_eq!("?------rwx", SimpleDir::mode_as_string(&(S_IROTH+S_IWOTH+S_IXOTH)));
+        assert_eq!("?r--r--r--", SimpleDir::mode_as_string(&(S_IRUSR+S_IRGRP+S_IROTH)));
+        assert_eq!("?-w--w--w-", SimpleDir::mode_as_string(&(S_IWUSR+S_IWGRP+S_IWOTH)));
+        assert_eq!("?--x--x--x", SimpleDir::mode_as_string(&(S_IXUSR+S_IXGRP+S_IXOTH)));
+        assert_eq!("d---------", SimpleDir::mode_as_string(&S_IFDIR));
+        assert_eq!("b---------", SimpleDir::mode_as_string(&S_IFBLK));
+        assert_eq!("p---------", SimpleDir::mode_as_string(&S_IFIFO));
+        assert_eq!("c---------", SimpleDir::mode_as_string(&S_IFCHR));
+        assert_eq!("s---------", SimpleDir::mode_as_string(&S_IFLNK));
+        assert_eq!("drwxrwxrwx", SimpleDir::mode_as_string(
+                &(S_IFDIR+S_IRUSR+S_IWUSR+S_IXUSR+S_IRGRP+S_IWGRP+S_IXGRP+S_IROTH+S_IWOTH+S_IXOTH)));
+    }
 }
