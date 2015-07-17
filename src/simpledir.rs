@@ -48,9 +48,14 @@ impl SimpleDir {
 
     pub fn dump_as_string(self : &SimpleDir) -> String {
         let mut st = String::new();
-        let mode = self.mdata.mode();
-        st = st + &SimpleDir::mode_as_string(&mode);
-        st = st + &format!("{:10} ", &self.mdata.len());
+
+        st = st + &format!("{}{:5}{:5}",
+                            &SimpleDir::mode_as_string(&self.mdata().mode()),
+                            &self.mdata().uid(),
+                            &self.mdata().gid());
+
+
+        st = st + &format!("{:10} ", &self.mdata().len());
         st = st + & self.fname;
         return st;
     }
