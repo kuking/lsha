@@ -1,6 +1,6 @@
 extern crate crypto;
-extern crate docopt;
 extern crate libc;
+extern crate docopt;
 
 mod simpledir;
 use simpledir::SimpleDir;
@@ -8,7 +8,6 @@ use simpledir::SimpleDir;
 mod runconfig;
 use runconfig::LshaRunConfig;
 
-use docopt::Docopt;
 use std::{io, fs};
 
 use crypto::digest::Digest;
@@ -55,29 +54,8 @@ fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), i
     return Ok(());
 }
 
-static USAGE: &'static str = "
-Usage: lsha [options] <PATH>
-       lsha --help
-       lsha --version
-
-Options: -c   Checksum file contents
-         -r   Recursive
-         -t   Use timestamps in checksum
-         -l   Include hidden files
-         -q   quiet (don't output file details)
-";
-
 fn main() {
-
-    let args = Docopt::new(USAGE).unwrap().parse()
-                  .unwrap_or_else(|e| e.exit());
-
-    if args.get_bool("--version") {
-        println!("lsha version 0.1");
-        return;
-    }
-    let cfg = LshaRunConfig::from_docopt (args);
-
+    let cfg = LshaRunConfig::resolve_arguments_or_exit_with_help();
     let mut sh = Sha256::new();
     match do_path(&mut sh, &cfg.path, &cfg) {
         Ok(_)  => println!("lsha is {}", sh.result_str()),
