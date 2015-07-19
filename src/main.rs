@@ -5,34 +5,15 @@ extern crate libc;
 mod simpledir;
 use simpledir::SimpleDir;
 
+mod runconfig;
+use runconfig::LshaRunConfig;
+
 use docopt::Docopt;
 use std::{io, fs};
 
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
 
-
-struct LshaRunConfig {
-    path           : String,
-    do_file_checksum : bool,
-    be_recursive    : bool,
-    be_quiet        : bool,
-    incl_timestamps : bool,
-    incl_hidden     : bool
-}
-
-impl LshaRunConfig {
-    fn from_docopt(args : docopt::ArgvMap) -> LshaRunConfig {
-        return LshaRunConfig {
-            path: args.get_str(&"PATH").to_string(),
-            do_file_checksum: args.get_bool(&"-c"),
-            be_recursive:  args.get_bool(&"-r"),
-            be_quiet:  args.get_bool(&"-q"),
-            incl_timestamps: args.get_bool(&"-t"),
-            incl_hidden: args.get_bool(&"-l")
-        }
-    }
-}
 
 fn put(sh : &mut Sha256, cfg :&LshaRunConfig, st : &String) {
     if !cfg.be_quiet {

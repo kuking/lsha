@@ -28,5 +28,4 @@ _(Mini) TO-DO_
 - Handle sha per file
 - Path handling should be with Path objects and not strings
 - Better error handling (specially for files that can't be accessed)
-- move LshaRunConfig handling into a module
 - Test modules
