@@ -1,4 +1,4 @@
-# lsha = ls + sha [<img src="https://travis-ci.org/kuking/lsha.svg?branch=master">](https://travis-ci.org/kuking/lsha)
+# lsha = ls + sha [<img src="https://travis-ci.org/kuking/lsha.svg?branch=master">](https://travis-ci.org/kuking/lsha) [![Coverage Status](https://coveralls.io/repos/kuking/lsha/badge.svg?branch=master&service=github)](https://coveralls.io/github/kuking/lsha?branch=master)
 
 Small tool built mostly to learn and practice [Rust language](http://www.rust-lang.org/).
 
