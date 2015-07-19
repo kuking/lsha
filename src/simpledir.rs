@@ -64,6 +64,10 @@ impl SimpleDir {
         return self.mdata().mode() & S_IFREG == S_IFREG;
     }
 
+    pub fn is_hidden(self :&SimpleDir) -> bool {
+        return self.fname().starts_with('.');
+    }
+
     pub fn new(de : DirEntry) -> SimpleDir {
         SimpleDir {
             fname: de.file_name().to_os_string().into_string().unwrap(),

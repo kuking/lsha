@@ -33,7 +33,7 @@ fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), i
     data.sort_by(|a, b| a.fname().cmp(&b.fname()));
 
     for sd in data.iter() {
-        if cfg.incl_hidden || !sd.fname().starts_with('.') {
+        if cfg.incl_hidden || !sd.is_hidden() {
             let s = sd.dump_as_string();
             if cfg.do_file_checksum && sd.is_regular_file() {
                 // TODO: calculate file sha here
@@ -45,7 +45,7 @@ fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), i
 
     if cfg.be_recursive {
         for sd in data.iter() {
-            if sd.mdata().is_dir() {
+            if sd.mdata().is_dir() && (cfg.incl_hidden || !sd.is_hidden()) {
                 do_path(sh, &(String::new() + &path + &"/" + &sd.fname()), cfg).unwrap();
             }
         }
