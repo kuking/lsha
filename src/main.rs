@@ -62,3 +62,8 @@ fn main() {
         Err(e) => println!("error {}", e.to_string()),
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+}

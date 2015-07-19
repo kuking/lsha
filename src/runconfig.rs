@@ -50,3 +50,9 @@ impl LshaRunConfig {
     }
 
 }
+
+
+#[cfg(test)]
+mod tests {
+
+}
