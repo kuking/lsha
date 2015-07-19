@@ -60,6 +60,10 @@ impl SimpleDir {
         return st;
     }
 
+    pub fn is_regular_file(self :&SimpleDir) -> bool {
+        return self.mdata().mode() & S_IFREG == S_IFREG;
+    }
+
     pub fn new(de : DirEntry) -> SimpleDir {
         SimpleDir {
             fname: de.file_name().to_os_string().into_string().unwrap(),
