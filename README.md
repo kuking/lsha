@@ -9,12 +9,13 @@ Its purpose is to calculate a sha-256 hash out of folders and optionally file co
 ```
 $ lsha --help
 Usage: lsha [options] <PATH>
-       lsha --help`
+       lsha --help
        lsha --version
 
 Options: -c   Checksum file contents
          -r   Recursive
          -t   Use timestamps in checksum
+         -l   Include hidden files
          -q   quiet (don't output file details)
 ```
 

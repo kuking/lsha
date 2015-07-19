@@ -99,7 +99,7 @@ fn main() {
 
     let mut sh = Sha256::new();
     match do_path(&mut sh, &cfg.path, &cfg) {
-        Ok(_)  => println!("lsha-256 {}", sh.result_str()),
+        Ok(_)  => println!("\nlsha is {}", sh.result_str()),
         Err(e) => println!("error {}", e.to_string()),
     }
 }
