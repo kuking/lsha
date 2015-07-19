@@ -36,9 +36,9 @@ impl LshaRunConfig {
         }
     }
 
-    pub fn resolve_arguments_or_exit_with_help() -> LshaRunConfig {
+    pub fn parse_args_or_exit_with_help<I, S>(argv : I) -> LshaRunConfig where I: Iterator<Item=S>, S: Into<String> {
 
-        let args = docopt::Docopt::new(USAGE).unwrap().parse()
+        let args = docopt::Docopt::new(USAGE).unwrap().argv(argv).parse()
                   .unwrap_or_else(|e| e.exit());
 
         if args.get_bool("--version") {
@@ -55,4 +55,51 @@ impl LshaRunConfig {
 #[cfg(test)]
 mod tests {
 
+    use super::*;
+    use docopt;
+    use std::vec::Vec;
+
+    fn given_docopt(line : &str) -> docopt::ArgvMap {
+        return docopt::Docopt::new(super::USAGE)
+                        .unwrap()
+                        .argv(line.split(' ').into_iter())
+                        .parse()
+                        .unwrap_or_else(|e|e.exit());
+    }
+
+    #[test]
+    fn no_params() {
+        let cfg = LshaRunConfig::from_docopt(given_docopt(&"lsha ."));
+
+        assert_eq!(false, cfg.do_file_checksum);
+        assert_eq!(false, cfg.be_recursive);
+        assert_eq!(false, cfg.be_quiet);
+        assert_eq!(false, cfg.incl_timestamps);
+        assert_eq!(false, cfg.incl_hidden);
+        assert_eq!(".".to_string(), cfg.path);
+    }
+
+    #[test]
+    fn all_params() {
+        let cfg = LshaRunConfig::from_docopt(given_docopt(&"lsha -qcrtl le-path"));
+
+        assert_eq!(true, cfg.do_file_checksum);
+        assert_eq!(true, cfg.be_recursive);
+        assert_eq!(true, cfg.be_quiet);
+        assert_eq!(true, cfg.incl_timestamps);
+        assert_eq!(true, cfg.incl_hidden);
+        assert_eq!("le-path".to_string(), cfg.path);
+    }
+
+    #[test]
+    fn mix_params() {
+        let cfg = LshaRunConfig::from_docopt(given_docopt(&"lsha -q -l path"));
+
+        assert_eq!(false, cfg.do_file_checksum);
+        assert_eq!(false, cfg.be_recursive);
+        assert_eq!(true, cfg.be_quiet);
+        assert_eq!(false, cfg.incl_timestamps);
+        assert_eq!(true, cfg.incl_hidden);
+        assert_eq!("path".to_string(), cfg.path);
+    }
 }

@@ -9,6 +9,7 @@ mod runconfig;
 use runconfig::LshaRunConfig;
 
 use std::{io, fs};
+use std::env::args;
 
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
@@ -55,7 +56,7 @@ fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), i
 }
 
 fn main() {
-    let cfg = LshaRunConfig::resolve_arguments_or_exit_with_help();
+    let cfg = LshaRunConfig::parse_args_or_exit_with_help(args());
     let mut sh = Sha256::new();
     match do_path(&mut sh, &cfg.path, &cfg) {
         Ok(_)  => println!("lsha({}) = {}", &cfg.path, sh.result_str()),
