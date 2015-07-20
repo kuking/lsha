@@ -67,4 +67,9 @@ fn main() {
 #[cfg(test)]
 mod tests {
 
+    #[test]
+    fn placeholder() {
+        // this should test something, needed otherwise coveralls won't pick it
+    }
+
 }
