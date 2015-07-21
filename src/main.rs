@@ -26,7 +26,7 @@ fn put(sh : &mut Sha256, cfg :&LshaRunConfig, st : &String) {
 fn do_file_hash(path :String) -> String {
 
     let mut sh = Sha256::new();
-    let ref mut buf = [0; 256*1024];
+    let ref mut buf = [0; 64*1024];
 
     let mut f : fs::File = fs::File::open(path).unwrap();
     loop {
