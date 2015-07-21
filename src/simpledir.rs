@@ -141,7 +141,7 @@ mod tests {
     }
 
     #[test]
-    fn is_regular_file_returns_true_for_IFDIR() {
+    fn is_regular_file_returns_false_for_IFDIR() {
         let sd = SimpleDir::new_for_test("a-dir".to_string(), 123, S_IFDIR, 0, 0);
         assert!(!sd.is_regular_file());
     }
