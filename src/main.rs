@@ -90,7 +90,7 @@ fn main() {
     let cfg = LshaRunConfig::parse_args_or_exit_with_help(args());
     let mut sh = Sha256::new();
     match do_path(&mut sh, &cfg.path, &cfg) {
-        Ok(_)  => println!("lsha({}) = {}", &cfg.path, sh.result_str()),
+        Ok(_)  => println!("{} is lsha for {}", sh.result_str(), &cfg.path),
         Err(e) => println!("error {}", e.to_string()),
     }
 }
