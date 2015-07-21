@@ -99,6 +99,7 @@ impl SimpleDir {
         }
     }
 
+    #[cfg(test)]
     fn new_for_test(filename :String, len :u64, mode :mode_t, uid :uid_t, gid :gid_t) -> SimpleDir {
         SimpleDir {
             fname: filename,
