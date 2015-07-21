@@ -23,11 +23,3 @@ Options: -c   Checksum file contents
 
 ## Notice
 This project is a trial; its only intention is to help me to practice a bit of rust on my free time; contributions are welcome but please don't expect this to be an example of how you should do Rust programming. Please, don't even expect it to work as intended =)
-
----------------
-
-_(Mini) TO-DO_
-- Handle sha per file
-- Path handling should be with Path objects and not strings
-- Better error handling (specially for files that can't be accessed)
-- Test modules
