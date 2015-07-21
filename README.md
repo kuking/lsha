@@ -19,6 +19,8 @@ Options: -c   Checksum file contents
          -q   quiet (don't output file details)
 ```
 
+* sha256 will be very slow when running in debug mode.
+
 ## Notice
 This project is a trial; its only intention is to help me to practice a bit of rust on my free time; contributions are welcome but please don't expect this to be an example of how you should do Rust programming. Please, don't even expect it to work as intended =)
 
