@@ -61,7 +61,12 @@ impl SimpleDir {
     }
 
     pub fn is_regular_file(self :&SimpleDir) -> bool {
-        return self.mdata().mode() & S_IFREG == S_IFREG;
+        let mode = self.mdata().mode();
+        return mode & S_IFREG == S_IFREG
+            && mode & S_IFLNK != S_IFLNK
+            && mode & S_IFCHR != S_IFCHR
+            && mode & S_IFBLK != S_IFBLK
+            && mode & S_IFIFO != S_IFIFO
     }
 
     pub fn is_hidden(self :&SimpleDir) -> bool {
