@@ -8,7 +8,8 @@ use simpledir::SimpleDir;
 mod runconfig;
 use runconfig::LshaRunConfig;
 
-use std::{io, fs};
+use std::{io, fs, iter};
+use std::io::Read;
 use std::env::args;
 
 use crypto::digest::Digest;
@@ -20,6 +21,25 @@ fn put(sh : &mut Sha256, cfg :&LshaRunConfig, st : &String) {
         print!("{}", st);
     }
     sh.input_str(&st);
+}
+
+fn do_file_hash(path :String) -> String {
+
+    let mut sh = Sha256::new();
+    let ref mut buf = [0; 256*1024];
+
+    let mut f : fs::File = fs::File::open(path).unwrap();
+    loop {
+        let mut consumed : usize = 0;
+        match f.read(buf) {
+            Ok(n)  => consumed = n,
+            Err(e) => println!("error hashing file {:?}", e)
+        }
+        if consumed == 0 { break; }
+        sh.input(&buf[0..consumed]);
+    }
+
+    return sh.result_str();
 }
 
 fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), io::Error> {
@@ -34,14 +54,25 @@ fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), i
     data.sort_by(|a, b| a.fname().cmp(&b.fname()));
 
     for sd in data.iter() {
-        if cfg.incl_hidden || !sd.is_hidden() {
-            let s = sd.dump_as_string();
-            if cfg.do_file_checksum && sd.is_regular_file() {
-                // TODO: calculate file sha here
-                // and append to the text
+
+        if !cfg.incl_hidden && sd.is_hidden() {
+            continue;
+        }
+
+        let s = sd.dump_as_string();
+        if cfg.do_file_checksum {
+            let hash : String;
+            if sd.is_regular_file() {
+                let path = String::new() + &path + &"/" + &sd.fname(); //TODO: generalise
+                hash = do_file_hash(path);
+            } else {
+                hash = iter::repeat(".   ").take(16).collect();
             }
+            put(sh, cfg, &format!("{:64} {}\n", &hash, &s));
+        } else {
             put(sh, cfg, &format!("{}\n",&s));
         }
+
     }
 
     if cfg.be_recursive {
@@ -63,6 +94,7 @@ fn main() {
         Err(e) => println!("error {}", e.to_string()),
     }
 }
+
 
 #[cfg(test)]
 mod tests {
