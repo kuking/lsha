@@ -2,9 +2,12 @@
 use docopt;
 use std::process::exit;
 
+static VERSION: &'static str =
+    "lsha version 0.1 originally by Eduardo ES Riccardi (https://github.com/kuking/lsha)";
+
 static USAGE: &'static str = "
 Usage: lsha [options] <PATH>
-       lsha --help
+       lsha (-h | --help)
        lsha --version
 
 Options: -c   Checksum file contents
@@ -12,6 +15,7 @@ Options: -c   Checksum file contents
          -t   Use timestamps in checksum
          -l   Include hidden files
          -q   quiet (don't output file details)
+  --help -h   Shows help screen
 ";
 
 #[derive(Debug)]
@@ -37,13 +41,14 @@ impl LshaRunConfig {
         }
     }
 
-    pub fn parse_args_or_exit_with_help<I, S>(argv : I) -> LshaRunConfig where I: Iterator<Item=S>, S: Into<String> {
+    pub fn parse_args_or_exit_with_help<I, S>(argv : I) -> LshaRunConfig
+     where I: Iterator<Item=S>, S: Into<String> {
 
         let args = docopt::Docopt::new(USAGE).unwrap().argv(argv).parse()
                   .unwrap_or_else(|e| e.exit());
 
-        if args.get_bool("--version") {
-            println!("lsha version 0.1");
+        if args.get_bool(&"--version") {
+            println!("{}", &VERSION);
             exit(-1);
         }
 
