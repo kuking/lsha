@@ -1,26 +1,38 @@
 
 use libc::consts::os::posix88::*;
 use libc::types::os::arch::posix88::mode_t;
+use libc::types::os::arch::posix88::uid_t;
+use libc::types::os::arch::posix88::gid_t;
 
 use std::fs::DirEntry;
-use std::fs::Metadata;
 
 use std::os::unix::fs::MetadataExt;
 
 
 pub struct SimpleDir {
     fname :String,
-    mdata :Metadata,
+    len   :u64,
+    mode  :mode_t,
+    uid   :uid_t,
+    gid   :gid_t
 }
 
 impl SimpleDir {
 
-    pub fn mdata(&self) -> &Metadata {
-        return &self.mdata;
-    }
-
     pub fn fname(&self) -> &String {
         return &self.fname;
+    }
+    pub fn len(&self) -> u64 {
+        return self.len;
+    }
+    pub fn mode(&self) -> &mode_t {
+        return &self.mode;
+    }
+    pub fn uid(&self) -> &uid_t {
+        return &self.uid;
+    }
+    pub fn gid(&self) -> &gid_t {
+        return &self.gid;
     }
 
     fn mode_as_string(mode :&mode_t) -> String {
@@ -50,18 +62,18 @@ impl SimpleDir {
         let mut st = String::new();
 
         st = st + &format!("{}{:5}{:5}",
-                            &SimpleDir::mode_as_string(&self.mdata().mode()),
-                            &self.mdata().uid(),
-                            &self.mdata().gid());
+                            &SimpleDir::mode_as_string(&self.mode()),
+                            &self.uid(),
+                            &self.gid());
 
 
-        st = st + &format!("{:10} ", &self.mdata().len());
+        st = st + &format!("{:10} ", &self.len());
         st = st + & self.fname;
         return st;
     }
 
     pub fn is_regular_file(self :&SimpleDir) -> bool {
-        let mode = self.mdata().mode();
+        let mode = self.mode();
         return mode & S_IFREG == S_IFREG
             && mode & S_IFLNK != S_IFLNK
             && mode & S_IFCHR != S_IFCHR
@@ -73,12 +85,30 @@ impl SimpleDir {
         return self.fname().starts_with('.');
     }
 
+    pub fn is_dir(self :&SimpleDir) -> bool {
+        return self.mode & S_IFDIR == S_IFDIR;
+    }
+
     pub fn new(de : DirEntry) -> SimpleDir {
         SimpleDir {
             fname: de.file_name().to_os_string().into_string().unwrap(),
-            mdata: de.metadata().unwrap()
+            len  : de.metadata().unwrap().len(),
+            mode : de.metadata().unwrap().mode(),
+            uid  : de.metadata().unwrap().uid(),
+            gid  : de.metadata().unwrap().gid()
         }
     }
+
+    fn new_for_test(filename :String, len :u64, mode :mode_t, uid :uid_t, gid :gid_t) -> SimpleDir {
+        SimpleDir {
+            fname: filename,
+            len  : len,
+            mode : mode,
+            uid  : uid,
+            gid  : gid
+        }
+    }
+
 }
 
 #[cfg(test)]
@@ -103,4 +133,32 @@ mod tests {
         assert_eq!("drwxrwxrwx", SimpleDir::mode_as_string(
                 &(S_IFDIR+S_IRUSR+S_IWUSR+S_IXUSR+S_IRGRP+S_IWGRP+S_IXGRP+S_IROTH+S_IWOTH+S_IXOTH)));
     }
+
+    #[test]
+    fn is_regular_file_returns_true_for_IFREQ() {
+        let sd = SimpleDir::new_for_test("a-file".to_string(), 123, S_IFREG, 0, 0);
+        assert!(sd.is_regular_file());
+    }
+
+    #[test]
+    fn is_regular_file_returns_true_for_IFDIR() {
+        let sd = SimpleDir::new_for_test("a-dir".to_string(), 123, S_IFDIR, 0, 0);
+        assert!(!sd.is_regular_file());
+    }
+
+    #[test]
+    fn is_regular_file_returns_false_for_IFREQ_plus_specials() {
+
+        let sd_IFREG_IFLNK =  SimpleDir::new_for_test("file".to_string(), 123, S_IFREG | S_IFLNK, 0, 0);
+        let sd_IFREG_IFCHR =  SimpleDir::new_for_test("file".to_string(), 123, S_IFREG | S_IFCHR, 0, 0);
+        let sd_IFREG_IFBLK =  SimpleDir::new_for_test("file".to_string(), 123, S_IFREG | S_IFBLK, 0, 0);
+        let sd_IFREG_IFIFO =  SimpleDir::new_for_test("file".to_string(), 123, S_IFREG | S_IFIFO, 0, 0);
+
+        assert!(!sd_IFREG_IFLNK.is_regular_file());
+        assert!(!sd_IFREG_IFCHR.is_regular_file());
+        assert!(!sd_IFREG_IFBLK.is_regular_file());
+        assert!(!sd_IFREG_IFIFO.is_regular_file());
+    }
+
+
 }

@@ -77,7 +77,7 @@ fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), i
 
     if cfg.be_recursive {
         for sd in data.iter() {
-            if sd.mdata().is_dir() && (cfg.incl_hidden || !sd.is_hidden()) {
+            if sd.is_dir() && (cfg.incl_hidden || !sd.is_hidden()) {
                 do_path(sh, &(String::new() + &path + &"/" + &sd.fname()), cfg).unwrap();
             }
         }
