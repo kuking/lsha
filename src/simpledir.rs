@@ -5,6 +5,7 @@ use libc::types::os::arch::posix88::uid_t;
 use libc::types::os::arch::posix88::gid_t;
 
 use std::fs::DirEntry;
+use std::path::{Path, PathBuf};
 
 use std::os::unix::fs::MetadataExt;
 
@@ -89,6 +90,12 @@ impl SimpleDir {
         return self.mode & S_IFDIR == S_IFDIR;
     }
 
+    pub fn append_fname_to(self :&SimpleDir, path :&Path) -> PathBuf {
+        let mut new_path = PathBuf::from(path);
+        new_path.push(Path::new(&self.fname()));
+        return PathBuf::from(new_path);
+    }
+
     pub fn new(de : DirEntry) -> SimpleDir {
         SimpleDir {
             fname: de.file_name().to_os_string().into_string().unwrap(),
@@ -116,6 +123,7 @@ impl SimpleDir {
 mod tests {
     use super::*;
     use libc::consts::os::posix88::*;
+    use std::path::{Path, PathBuf};
 
     #[test]
     fn mode_as_string_tests() {
@@ -161,5 +169,15 @@ mod tests {
         assert!(!sd_IFREG_IFIFO.is_regular_file());
     }
 
+    #[test]
+    fn it_appends_fname_to() {
+        let sd = SimpleDir::new_for_test("file".to_string(), 123, S_IFREG, 0, 0);
+        let path = PathBuf::from(&"a-path");
+        assert_eq!("a-path", path.to_str().unwrap());
+        assert_eq!("file", sd.fname());
+
+        let new_path = sd.append_fname_to(path.as_path());
+        assert_eq!("a-path/file", new_path.to_str().unwrap());
+    }
 
 }

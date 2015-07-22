@@ -1,6 +1,7 @@
 
 use docopt;
 use std::process::exit;
+use std::path::PathBuf;
 
 static VERSION: &'static str =
     "lsha version 0.1 originally by Eduardo ES Riccardi (https://github.com/kuking/lsha)";
@@ -20,7 +21,7 @@ Options: -c   Checksum file contents
 
 #[derive(Debug)]
 pub struct LshaRunConfig {
-    pub path           : String,
+    pub path           : PathBuf,
     pub do_file_checksum : bool,
     pub be_recursive    : bool,
     pub be_quiet        : bool,
@@ -32,7 +33,7 @@ impl LshaRunConfig {
 
     fn from_docopt(args : docopt::ArgvMap) -> LshaRunConfig {
         return LshaRunConfig {
-            path:               args.get_str(&"PATH").to_string(),
+            path:               PathBuf::from(args.get_str(&"PATH")),
             do_file_checksum:   args.get_bool(&"-c"),
             be_recursive:       args.get_bool(&"-r"),
             be_quiet:           args.get_bool(&"-q"),
@@ -81,7 +82,7 @@ mod tests {
         assert!(!cfg.be_quiet);
         assert!(!cfg.incl_timestamps);
         assert!(!cfg.incl_hidden);
-        assert_eq!(".".to_string(), cfg.path);
+        assert_eq!(".", cfg.path.to_str().unwrap());
     }
 
     #[test]
@@ -93,7 +94,7 @@ mod tests {
         assert!(true, cfg.be_quiet);
         assert!(true, cfg.incl_timestamps);
         assert!(true, cfg.incl_hidden);
-        assert_eq!("le-path".to_string(), cfg.path);
+        assert_eq!("le-path", cfg.path.to_str().unwrap());
     }
 
     #[test]
@@ -105,7 +106,7 @@ mod tests {
         assert!(cfg.be_quiet);
         assert!(!cfg.incl_timestamps);
         assert!(cfg.incl_hidden);
-        assert_eq!("path".to_string(), cfg.path);
+        assert_eq!("path", cfg.path.to_str().unwrap());
     }
 
     //#[test]

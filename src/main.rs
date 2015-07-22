@@ -11,6 +11,7 @@ use runconfig::LshaRunConfig;
 use std::{io, fs, iter};
 use std::io::Read;
 use std::env::args;
+use std::path::Path;
 
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
@@ -23,7 +24,7 @@ fn put(sh : &mut Sha256, cfg :&LshaRunConfig, st : &String) {
     sh.input_str(&st);
 }
 
-fn do_file_hash(path :String) -> String {
+fn do_file_hash(path :&Path) -> String {
 
     let mut sh = Sha256::new();
     let ref mut buf = [0; 64*1024];
@@ -42,10 +43,10 @@ fn do_file_hash(path :String) -> String {
     return sh.result_str();
 }
 
-fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), io::Error> {
+fn do_path(sh : &mut Sha256, path :&Path, cfg :&LshaRunConfig) -> Result<(), io::Error> {
 
     if cfg.be_recursive {
-        put(sh, cfg, &format!("\n{}\n", path));
+        put(sh, cfg, &format!("\n{}\n", path.display()));
     }
 
     let mut data : Vec<_> = try!(fs::read_dir(path))
@@ -63,8 +64,7 @@ fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), i
         if cfg.do_file_checksum {
             let hash : String;
             if sd.is_regular_file() {
-                let path = String::new() + &path + &"/" + &sd.fname(); //TODO: generalise
-                hash = do_file_hash(path);
+                hash = do_file_hash(sd.append_fname_to(&path).as_path());
             } else {
                 hash = iter::repeat(".   ").take(16).collect();
             }
@@ -78,7 +78,7 @@ fn do_path(sh : &mut Sha256, path :&String, cfg :&LshaRunConfig) -> Result<(), i
     if cfg.be_recursive {
         for sd in data.iter() {
             if sd.is_dir() && (cfg.incl_hidden || !sd.is_hidden()) {
-                do_path(sh, &(String::new() + &path + &"/" + &sd.fname()), cfg).unwrap();
+                do_path(sh, sd.append_fname_to(&path).as_path(), cfg).unwrap();
             }
         }
     }
@@ -90,7 +90,7 @@ fn main() {
     let cfg = LshaRunConfig::parse_args_or_exit_with_help(args());
     let mut sh = Sha256::new();
     match do_path(&mut sh, &cfg.path, &cfg) {
-        Ok(_)  => println!("{} is lsha for {}", sh.result_str(), &cfg.path),
+        Ok(_)  => println!("{} is lsha for {}", sh.result_str(), &cfg.path.display()),
         Err(e) => println!("error {}", e.to_string()),
     }
 }
