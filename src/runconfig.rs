@@ -43,10 +43,11 @@ impl LshaRunConfig {
     }
 
     pub fn parse_args_or_exit_with_help<I, S>(argv : I) -> LshaRunConfig
-     where I: Iterator<Item=S>, S: Into<String> {
+     where I: Iterator<Item=S>, S: AsRef<str> {
 
-        let args = docopt::Docopt::new(USAGE).unwrap().argv(argv).parse()
-                  .unwrap_or_else(|e| e.exit());
+        let args = docopt::Docopt::new(USAGE)
+               .and_then(|d| d.argv(argv.into_iter()).parse())
+               .unwrap_or_else(|e| e.exit());
 
         if args.get_bool(&"--version") {
             println!("{}", &VERSION);
