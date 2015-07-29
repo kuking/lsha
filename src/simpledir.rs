@@ -87,7 +87,12 @@ impl SimpleDir {
     }
 
     pub fn is_dir(self :&SimpleDir) -> bool {
-        return self.mode & S_IFDIR == S_IFDIR;
+        let mode = self.mode();
+        return mode & S_IFDIR == S_IFDIR
+            && mode & S_IFLNK != S_IFLNK
+            && mode & S_IFCHR != S_IFCHR
+            && mode & S_IFBLK != S_IFBLK
+            && mode & S_IFIFO != S_IFIFO
     }
 
     pub fn append_fname_to(self :&SimpleDir, path :&Path) -> PathBuf {
@@ -144,25 +149,21 @@ mod tests {
     }
 
     #[test]
-    fn is_regular_file_returns_true_for_IFREQ() {
+    fn is_regular_file() {
+
+        // happy
         let sd = SimpleDir::new_for_test("a-file".to_string(), 123, S_IFREG, 0, 0);
         assert!(sd.is_regular_file());
-    }
 
-    #[test]
-    fn is_regular_file_returns_false_for_IFDIR() {
+        // a dir is not a regular file
         let sd = SimpleDir::new_for_test("a-dir".to_string(), 123, S_IFDIR, 0, 0);
         assert!(!sd.is_regular_file());
-    }
 
-    #[test]
-    fn is_regular_file_returns_false_for_IFREQ_plus_specials() {
-
+        // file flag plus specialsq are not regular files
         let sd_IFREG_IFLNK =  SimpleDir::new_for_test("file".to_string(), 123, S_IFREG | S_IFLNK, 0, 0);
         let sd_IFREG_IFCHR =  SimpleDir::new_for_test("file".to_string(), 123, S_IFREG | S_IFCHR, 0, 0);
         let sd_IFREG_IFBLK =  SimpleDir::new_for_test("file".to_string(), 123, S_IFREG | S_IFBLK, 0, 0);
         let sd_IFREG_IFIFO =  SimpleDir::new_for_test("file".to_string(), 123, S_IFREG | S_IFIFO, 0, 0);
-
         assert!(!sd_IFREG_IFLNK.is_regular_file());
         assert!(!sd_IFREG_IFCHR.is_regular_file());
         assert!(!sd_IFREG_IFBLK.is_regular_file());
@@ -180,4 +181,25 @@ mod tests {
         assert_eq!("a-path/file", new_path.to_str().unwrap());
     }
 
+    #[test]
+    fn is_dir() {
+
+        // happy
+        let sd = SimpleDir::new_for_test("dir".to_string(), 123, S_IFDIR, 0, 0);
+        assert!(sd.is_dir());
+
+        // regular file is not a dir
+        let sd = SimpleDir::new_for_test("dir".to_string(), 123, S_IFREG, 0, 0);
+        assert!(!sd.is_dir());
+
+        // dir flag plus specials are not dirs
+        let sd_IFDIR_IFLNK =  SimpleDir::new_for_test("dir".to_string(), 123, S_IFDIR | S_IFLNK, 0, 0);
+        let sd_IFDIR_IFCHR =  SimpleDir::new_for_test("dir".to_string(), 123, S_IFDIR | S_IFCHR, 0, 0);
+        let sd_IFDIR_IFBLK =  SimpleDir::new_for_test("dir".to_string(), 123, S_IFDIR | S_IFBLK, 0, 0);
+        let sd_IFDIR_IFIFO =  SimpleDir::new_for_test("dir".to_string(), 123, S_IFDIR | S_IFIFO, 0, 0);
+        assert!(!sd_IFDIR_IFLNK.is_dir());
+        assert!(!sd_IFDIR_IFCHR.is_dir());
+        assert!(!sd_IFDIR_IFBLK.is_dir());
+        assert!(!sd_IFDIR_IFIFO.is_dir());
+    }
 }
