@@ -29,18 +29,20 @@ fn do_file_hash(path :&Path) -> String {
     let mut sh = Sha256::new();
     let ref mut buf = [0; 64*1024];
 
-    let mut f : fs::File = fs::File::open(path).unwrap();
-    loop {
-        let mut consumed : usize = 0;
-        match f.read(buf) {
-            Ok(n)  => consumed = n,
-            Err(e) => println!("error hashing file {:?}", e)
+    if let Ok(mut f) = fs::File::open(path) {
+        loop {
+            let mut consumed : usize = 0;
+            match f.read(buf) {
+                Ok(n)  => consumed = n,
+                Err(e) => println!("error hashing file {:?}", e)
+            }
+            if consumed == 0 { break; }
+            sh.input(&buf[0..consumed]);
         }
-        if consumed == 0 { break; }
-        sh.input(&buf[0..consumed]);
+        return sh.result_str();
+    } else {
+        return "N/A".to_string();
     }
-
-    return sh.result_str();
 }
 
 fn do_path(sh : &mut Sha256, path :&Path, cfg :&LshaRunConfig) -> Result<(), io::Error> {
