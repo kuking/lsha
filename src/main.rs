@@ -80,7 +80,10 @@ fn do_path(sh : &mut Sha256, path :&Path, cfg :&LshaRunConfig) -> Result<(), io:
     if cfg.be_recursive {
         for sd in data.iter() {
             if sd.is_dir() && (cfg.incl_hidden || !sd.is_hidden()) {
-                do_path(sh, sd.append_fname_to(&path).as_path(), cfg).unwrap();
+                let new_path = sd.append_fname_to(&path);
+                if let Err(_) = do_path(sh, new_path.as_path(), cfg) {
+                   println!("Failure exploring path {:?}", new_path);
+                }
             }
         }
     }
