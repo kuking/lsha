@@ -1,20 +1,18 @@
 language: rust
 
-sudo: false
+rust:
+  - stable
+  - beta
+  - nightly
 
-addons:
-  apt:
-    packages:
-      - libcurl4-openssl-dev
-      - libelf-dev
-      - libdw-dev
-
+matrix:
+  allow_failures:
+    - rust: nightly
 
 cache:
-    apt: true
-    directories:
-        - target/debug/deps
-        - target/debug/build
+  directories:
+    - target/debug/deps
+    - target/debug/build
 
 after_success: |
   wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
